@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  task-db:
+    image: mongo:7.0
+    container_name: scrum_task_mongodb
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-scrum_admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-SuperSecureMongoPass123!}
+      MONGO_INITDB_DATABASE: ${MONGO_DB:-scrum_tasks}
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - task-net
+
+  task-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: scrum_task_app
+    restart: always
+    ports:
+      - "${PORT:-5001}:5001"
+    environment:
+      PORT: 5001
+      MONGO_HOST: ${MONGO_HOST:-task-db}
+      MONGO_PORT: ${MONGO_PORT:-27017}
+      MONGO_DB: ${MONGO_DB:-scrum_tasks}
+      MONGO_USER: ${MONGO_USER:-scrum_admin}
+      MONGO_PASSWORD: ${MONGO_PASSWORD:-SuperSecureMongoPass123!}
+    depends_on:
+      - task-db
+    networks:
+      - task-net
+
+volumes:
+  mongo_data:
+
+networks:
+  task-net:
+    driver: bridge
