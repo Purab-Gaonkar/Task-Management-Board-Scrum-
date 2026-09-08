@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  user-db:
+    image: postgres:16-alpine
+    container_name: scrum_user_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${PG_USER:-scrum_pg_admin}
+      POSTGRES_PASSWORD: ${PG_PASSWORD:-SuperSecurePostgresPass123!}
+      POSTGRES_DB: ${PG_DB:-scrum_users}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - user-net
+
+  user-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: scrum_user_app
+    restart: always
+    ports:
+      - "${PORT:-5002}:5002"
+    environment:
+      PORT: 5002
+      PG_HOST: ${PG_HOST:-user-db}
+      PG_PORT: ${PG_PORT:-5432}
+      PG_DB: ${PG_DB:-scrum_users}
+      PG_USER: ${PG_USER:-scrum_pg_admin}
+      PG_PASSWORD: ${PG_PASSWORD:-SuperSecurePostgresPass123!}
+      JWT_SECRET: ${JWT_SECRET:-super_secret_scrum_jwt_key_2026}
+    depends_on:
+      - user-db
+    networks:
+      - user-net
+
+volumes:
+  postgres_data:
+
+networks:
+  user-net:
+    driver: bridge

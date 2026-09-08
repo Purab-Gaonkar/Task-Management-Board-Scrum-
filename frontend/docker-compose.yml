@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_API_GATEWAY_URL: ${VITE_API_GATEWAY_URL:-http://localhost}
+    container_name: scrum_frontend_ui
+    restart: always
+    ports:
+      - "80:80"
+    networks:
+      - frontend-net
+
+networks:
+  frontend-net:
+    driver: bridge
