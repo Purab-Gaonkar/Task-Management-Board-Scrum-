@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  api-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: scrum_api_gateway
+    restart: always
+    ports:
+      - "80:80"
+    environment:
+      TASK_SERVICE_HOST: ${TASK_SERVICE_HOST:-task-service}
+      TASK_SERVICE_PORT: ${TASK_SERVICE_PORT:-5001}
+      USER_SERVICE_HOST: ${USER_SERVICE_HOST:-user-service}
+      USER_SERVICE_PORT: ${USER_SERVICE_PORT:-5002}
+    networks:
+      - gateway-net
+
+networks:
+  gateway-net:
+    driver: bridge
